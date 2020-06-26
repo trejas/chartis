@@ -1,15 +1,14 @@
 # Chartis CWL DAG
 # This class allows the creation of a DAG from a CWL input document.
 from airflow import DAG
-
 from functools import partial
 from datetime import datetime, timedelta, date
 import importlib
 import json
 import logging
 from operator import methodcaller
-
 from ruamel.yaml import YAML
+from typing import Union
 
 
 class CWLDag(DAG):
@@ -63,7 +62,9 @@ class CWLDag(DAG):
 
     def _get_nodes(self, node: dict, target_key: str, target_value: str) -> list:
         # Finds the nodes with the id of parents.
-        def find_node_value(node, target_key: str, target_value: str) -> obj:
+        def find_node_value(
+            node, target_key: str, target_value: str
+        ) -> Union[dict, str]:
             return node[target_key] == target_value
 
         return list(
