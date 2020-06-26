@@ -1,16 +1,15 @@
 # Chartis CWL DAG
 # This class allows the creation of a DAG from a CWL input document.
-import logging
+from airflow import DAG
+
+from functools import partial
+from datetime import datetime, timedelta, date
 import importlib
 import json
 import logging
-from functools import partial
-from datetime import datetime, timedelta, date
 from operator import methodcaller
 
 from ruamel.yaml import YAML
-
-from airflow import DAG
 
 
 class CWLDag(DAG):
@@ -22,7 +21,7 @@ class CWLDag(DAG):
 
     def __init__(
         self, input_dict: dict, dag_id: str = None, start_date: datetime = None
-    ):
+    ) -> CWLDag:
         self.relationships = []
         self.nodes = []
         self.input_dict = input_dict
@@ -39,7 +38,9 @@ class CWLDag(DAG):
         self.define_relationships()
 
     @classmethod
-    def from_json(cls, input_json_path: str, dag_id: str, start_date: datetime = None):
+    def from_json(
+        cls, input_json_path: str, dag_id: str, start_date: datetime = None
+    ) -> CWLDag:
         with open(input_json_path, "r") as stream:
             try:
                 input_dict = json.load(stream)
@@ -48,7 +49,9 @@ class CWLDag(DAG):
         return cls(input_dict, dag_id, start_date)
 
     @classmethod
-    def from_yaml(cls, input_yaml_path: str, dag_id: str, start_date: datetime = None):
+    def from_yaml(
+        cls, input_yaml_path: str, dag_id: str, start_date: datetime = None
+    ) -> CWLDag:
         yaml = YAML(typ="safe")  # default, if not specfied, is 'rt' (round-trip)
 
         with open(input_yaml_path, "r") as stream:
@@ -58,9 +61,9 @@ class CWLDag(DAG):
                 logging.error(err)
         return cls(input_dict, dag_id, start_date)
 
-    def _get_nodes(self, node: dict, target_key: str, target_value: str):
+    def _get_nodes(self, node: dict, target_key: str, target_value: str) -> list:
         # Finds the nodes with the id of parents.
-        def find_node_value(node, target_key: str, target_value: str):
+        def find_node_value(node, target_key: str, target_value: str) -> obj:
             return node[target_key] == target_value
 
         return list(
@@ -110,8 +113,7 @@ class CWLDag(DAG):
                 node_kwargs[port["id"]] = port["default"]
         return node_kwargs
 
-    def _parse_cwl_node(self, node: dict) -> tuple:
-        # node_type = self._get_node_type(node)
+    def _parse_cwl_node(self, node: dict) -> None:
 
         node_type = self._get_nodes(
             node["run"]["hints"], target_key="class", target_value="node_type"
@@ -293,9 +295,7 @@ class CWLDag(DAG):
             # Return task object, relationships
             return (task_subdag, relationships)
 
-        return "done"
-
-    def parse_dag_nodes_and_relationships(self) -> None:
+    def parse_dag_nodes_and_relationships(self) -> list:
         for node in self.input_dict["steps"]:
             logging.debug(node)
             logging.debug("Adding task to dag...")
