@@ -34,7 +34,7 @@ inputs:
     inputBinding:
       position: 0
   - id: task_id
-    type: string?
+    type: string
     inputBinding:
       position: 0
 outputs:
