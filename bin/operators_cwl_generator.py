@@ -51,11 +51,11 @@ base_sensor_inputs = generate_inputs_from_module(BaseSensorOperator)+base_operat
 sensors = list(inheritors(BaseSensorOperator))
 operators = list(filter(lambda x:x.__name__ not in list(map(lambda y:y.__name__,sensors+[BaseSensorOperator])) ,inheritors(BaseOperator) ))
 
-print('Processing {} Sensors.'.format('len(sensors)'))
+print('Processing {} Sensors.'.format(len(sensors)))
 for sensor in sensors:
     create_operator_cwl(sensor,'sensor',base_sensor_inputs)
 
-print('Processing {} Operators.'.format('len(sensors)'))
+print('Processing {} Operators.'.format(len(operators)))
 for operator in operators:
     create_operator_cwl(operator,'operator',base_operator_inputs)
 
