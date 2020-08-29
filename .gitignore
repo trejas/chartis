@@ -104,3 +104,9 @@ venv.bak/
 .mypy_cache/
 
 *.DS_Store
+
+conda.yml
+
+working/
+
+./vscode
